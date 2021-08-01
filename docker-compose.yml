@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: .docker/Dockerfile
+        image: 'shouts.dev/laravel'
+        container_name: shouts-laravel-app
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - laravel-shouts
+        depends_on:
+            - mysql
+    mysql:
+        image: 'mariadb:latest'
+        container_name: shouts-laravel-db
+        restart: unless-stopped
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        volumes:
+            - ./database/dbdata:/var/lib/mysql
+        networks:
+            - laravel-shouts
+
+networks:
+    laravel-shouts:
+        driver: bridge
